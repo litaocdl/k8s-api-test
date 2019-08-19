@@ -2,6 +2,8 @@ package io.k8s.test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -9,6 +11,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.okhttp.ConnectionSpec;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.internal.Util;
 
 import io.kubernetes.client.ApiClient;
 import io.kubernetes.client.ApiException;
@@ -26,16 +31,17 @@ public class ConfigMapExample {
 	public static ApiClient client = null ;
 	public static void main(String[] args) throws IOException, ApiException {
 		ConfigMapExample example = new ConfigMapExample() ;
-		String key = "abc" ;
-		String deletePatchBody = "{\"op\":\"remove\",\"path\":\"?\"}";
-		deletePatchBody.replace("VALUES", null);
-//		System.out.println(result);
-//		client = Config.fromConfig("/Users/tao/.kube/config") ;
-//	    Configuration.setDefaultApiClient(client);
-//	    System.out.println("get all pods");
-//	    example.getAllPods("mt") ;
-//	    System.out.println("get all configMap");
-//	    example.getAllConfigMap("mt");
+
+		client = Config.fromConfig("/Users/tao/.kube/config") ;
+
+//      workaround for TLS protocol not support issue, see https://github.com/kubernetes-client/java/issues/655
+		OkHttpClient okclient = client.getHttpClient() ;
+		okclient.setConnectionSpecs(Arrays.asList(new ConnectionSpec[]{new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS).allEnabledCipherSuites().build()}));
+	    Configuration.setDefaultApiClient(client);
+	    System.out.println("get all pods");
+	    example.getAllPods("mt") ;
+	    System.out.println("get all configMap");
+	    example.getAllConfigMap("mt");
 //	    System.out.println("Watch ConfigMap");
 //	    example.watchConfigMap("mt","config-uc") ;
 //	    
